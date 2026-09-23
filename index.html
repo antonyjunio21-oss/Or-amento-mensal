@@ -376,7 +376,102 @@
       selectMes.addEventListener('change', carregarDados);
     }
   });
-</script>
+</script>// Função auxiliar para converter valores formatados dos inputs em números
+function pegarValorInput(id) {
+  const elemento = document.getElementById(id);
+  if (!elemento) return 0;
+  // Substitui vírgulas por pontos e garante que retorne um número válido
+  const valorTexto = elemento.value.replace(',', '.');
+  return parseFloat(valorTexto) || 0;
+}
+
+// Função principal de cálculo e salvamento
+function calcularESalvar() {
+  // 1. CÁLCULO DAS ENTRADAS
+  const totalEntradas = 
+    pegarValorInput('salario') + 
+    pegarValorInput('rendaExtra') + 
+    pegarValorInput('jurosEmprestimos') + 
+    pegarValorInput('outrosEntradas') + 
+    pegarValorInput('saldoAnterior');
+
+  // 2. CÁLCULO DAS SAÍDAS (Fixas + Variáveis + Cartão)
+  const totalFixas = 
+    pegarValorInput('aluguel') + 
+    pegarValorInput('internet') + 
+    pegarValorInput('agua') + 
+    pegarValorInput('luz') + 
+    pegarValorInput('telefone') + 
+    pegarValorInput('transporte');
+
+  const totalVariaveis = 
+    pegarValorInput('lazer') + 
+    pegarValorInput('restaurantes') + 
+    pegarValorInput('compras') + 
+    pegarValorInput('farmacia') + 
+    pegarValorInput('imprevistos');
+
+  const totalCartao = 
+    pegarValorInput('mercado') + 
+    pegarValorInput('combustivel') + 
+    pegarValorInput('comprasOnline') + 
+    pegarValorInput('outrosAssinaturas');
+
+  const totalSaidas = totalFixas + totalVariaveis + totalCartao;
+
+  // 3. CÁLCULO DOS INVESTIMENTOS
+  const totalInvestido = 
+    pegarValorInput('reserva') + 
+    pegarValorInput('cdb') + 
+    pegarValorInput('tesouro') + 
+    pegarValorInput('acoes');
+
+  // 4. CONTA SIMPLIFICADA (Sobra do Mês)
+  const sobraDoMes = totalEntradas - (totalSaidas + totalInvestido);
+  const percentualInvestido = totalEntradas > 0 
+    ? ((totalInvestido / totalEntradas) * 100).toFixed(1) 
+    : 0;
+
+  // 5. ATUALIZA OS TOTAIS NA TELA
+  const formatarMoeda = (val) => `R$ ${val.toFixed(2).replace('.', ',')}`;
+
+  if (document.getElementById('totalEntradas')) 
+    document.getElementById('totalEntradas').innerText = formatarMoeda(totalEntradas);
+  
+  if (document.getElementById('totalSaidas')) 
+    document.getElementById('totalSaidas').innerText = formatarMoeda(totalSaidas + totalInvestido);
+  
+  if (document.getElementById('sobraMes')) 
+    document.getElementById('sobraMes').innerText = formatarMoeda(sobraDoMes);
+  
+  if (document.getElementById('percentualInvestido')) 
+    document.getElementById('percentualInvestido').innerText = `${percentualInvestido}%`;
+
+  // 6. MONTA O OBJETO COMPLETO E SALVA NO LOCALSTORAGE
+  const estadoCompleto = {
+    // Resumo simplificado salvo
+    resumo: {
+      totalEntradas: totalEntradas,
+      totalSaidas: totalSaidas + totalInvestido,
+      sobraDoMes: sobraDoMes,
+      percentualInvestido: percentualInvestido
+    }
+  };
+
+  localStorage.setItem('dadosOrcamentoMensal', JSON.stringify(estadoCompleto));
+}
+
+// Executa o cálculo sempre que a página carrega ou os inputs mudam
+document.addEventListener('DOMContentLoaded', () => {
+  // Adiciona evento de escuta a todos os inputs da página
+  const inputs = document.querySelectorAll('input');
+  inputs.forEach(input => {
+    input.addEventListener('input', calcularESalvar);
+  });
+
+  // Executa o cálculo inicial
+  calcularESalvar();
+});
 
 </body>
 </html>
