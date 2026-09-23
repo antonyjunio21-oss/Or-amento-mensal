@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orçamento Mensal</title>
+    <style>
+        :root {
+            --primary: #2C3E50;
+            --green: #27AE60;
+            --blue: #2980B9;
+            --orange: #E67E22;
+            --purple: #8E44AD;
+            --yellow: #F39C12;
+            --teal: #16A085;
+            --bg: #F4F6F7;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #ECF0F1;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 26px;
+            letter-spacing: 1px;
+        }
+
+        .month-selector select {
+            padding: 8px 12px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #BDC3C7;
+            background-color: #fff;
+            font-weight: bold;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #E5E7E9;
+            background: #fff;
+        }
+
+        .card-header {
+            padding: 10px 15px;
+            color: white;
+            font-weight: bold;
+            font-size: 15px;
+            text-transform: uppercase;
+        }
+
+        .entradas .card-header { background-color: var(--green); }
+        .fixas .card-header { background-color: var(--blue); }
+        .variaveis .card-header { background-color: var(--orange); }
+        .cartao .card-header { background-color: var(--purple); }
+        .investimentos .card-header { background-color: var(--yellow); }
+        .outros .card-header { background-color: var(--teal); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #F2F4F4;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #F8F9F9;
+            color: #7F8C8D;
+            font-size: 12px;
+        }
+
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+        }
+
+        input[type="number"] {
+            text-align: right;
+        }
+
+        input:focus {
+            outline: 1px solid #3498DB;
+            background-color: #F0F8FF;
+        }
+
+        .total-row {
+            font-weight: bold;
+            background-color: #F8F9F9;
+        }
+
+        .summary-card {
+            grid-column: 1 / -1;
+            background-color: #E8F8F5;
+            border: 2px solid var(--teal);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .summary-card h2 {
+            margin-top: 0;
+            color: var(--teal);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .summary-item {
+            background: #fff;
+            padding: 12px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .summary-item label {
+            display: block;
+            font-size: 12px;
+            color: #7F8C8D;
+            margin-bottom: 5px;
+        }
+
+        .summary-item span {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>ORÇAMENTO MENSAL</h1>
+        <div class="month-selector">
+            <select id="mes">
+                <option>Janeiro / 2026</option>
+                <option>Fevereiro / 2026</option>
+                <option>Março / 2026</option>
+                <option>Abril / 2026</option>
+                <option>Maio / 2026</option>
+                <option>Junho / 2026</option>
+                <option>Julho / 2026</option>
+                <option>Agosto / 2026</option>
+                <option selected>Setembro / 2026</option>
+                <option>Outubro / 2026</option>
+                <option>Novembro / 2026</option>
+                <option>Dezembro / 2026</option>
+            </select>
+        </div>
+    </header>
+
+    <div class="grid">
+        <!-- ENTRADAS -->
+        <div class="card entradas">
+            <div class="card-header">Entradas</div>
+            <table>
+                <thead><tr><th>Descrição</th><th style="text-align:right">Valor (R$)</th></tr></thead>
+                <tbody>
+                    <tr><td>Salário</td><td><input type="number" class="val-entrada" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr><td>Renda Extra</td><td><input type="number" class="val-entrada" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr><td>Juros dos Empréstimos</td><td><input type="number" class="val-entrada" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr><td>Outros</td><td><input type="number" class="val-entrada" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr><td>Saldo Mês Anterior</td><td><input type="number" class="val-entrada" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr class="total-row"><td>TOTAL ENTRADAS</td><td style="text-align:right" id="total-entradas">R$ 0,00</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- DESPESAS FIXAS -->
+        <div class="card fixas">
+            <div class="card-header">Despesas Fixas</div>
+            <table>
+                <thead><tr><th>Descrição</th><th style="text-align:right">Valor (R$)</th></tr></thead>
+                <tbody>
+                    <tr><td>Aluguel / Condomínio</td><td><input type="number" class="val-saida" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr><td>Internet / TV</td><td><input type="number" class="val-saida" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr><td>Água</td><td><input type="number" class="val-saida" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr><td>Luz</td><td><input type="number" class="val-saida" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr><td>Telefone / Celular</td><td><input type="number" class="val-saida" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr><td>Transporte</td><td><input type="number" class="val-saida" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr class="total-row"><td>TOTAL FIXAS</td><td style="text-align:right" id="total-fixas">R$ 0,00</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- DESPESAS VARIÁVEIS -->
+        <div class="card variaveis">
+            <div class="card-header">Despesas Variáveis</div>
+            <table>
+                <thead><tr><th>Descrição</th><th style="text-align:right">Valor (R$)</th></tr></thead>
+                <tbody>
+                    <tr><td>Lazer</td><td><input type="number" class="val-saida" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr><td>Restaurantes</td><td><input type="number" class="val-saida" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr><td>Compras</td><td><input type="number" class="val-saida" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr><td>Farmácia</td><td><input type="number" class="val-saida" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr><td>Imprevistos</td><td><input type="number" class="val-saida" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr class="total-row"><td>TOTAL VARIÁVEIS</td><td style="text-align:right" id="total-variaveis">R$ 0,00</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- CARTÃO DE CRÉDITO -->
+        <div class="card cartao">
+            <div class="card-header">Cartão de Crédito</div>
+            <table>
+                <thead><tr><th>Descrição</th><th style="text-align:right">Valor (R$)</th></tr></thead>
+                <tbody>
+                    <tr><td>Mercado</td><td><input type="number" class="val-saida" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr><td>Combustível</td><td><input type="number" class="val-saida" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr><td>Compras Online</td><td><input type="number" class="val-saida" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr><td>Outros Assinaturas</td><td><input type="number" class="val-saida" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr class="total-row"><td>TOTAL FATURA</td><td style="text-align:right" id="total-cartao">R$ 0,00</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- INVESTIMENTOS -->
+        <div class="card investimentos">
+            <div class="card-header">Investimentos</div>
+            <table>
+                <thead><tr><th>Descrição</th><th style="text-align:right">Valor (R$)</th></tr></thead>
+                <tbody>
+                    <tr><td>Reserva de Emergência</td><td><input type="number" class="val-invest" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr><td>CDB / Renda Fixa</td><td><input type="number" class="val-invest" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr><td>Tesouro Direto / Selic</td><td><input type="number" class="val-invest" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr><td>Ações / FIIs</td><td><input type="number" class="val-invest" placeholder="0.00" oninput="calcular()"></td></tr>
+                    <tr class="total-row"><td>TOTAL INVESTIDO</td><td style="text-align:right" id="total-investidos">R$ 0,00</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- RESUMO DO MÊS -->
+        <div class="summary-card">
+            <h2>Resumo do Mês</h2>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <label>Total de Entradas</label>
+                    <span id="res-entradas" style="color: var(--green);">R$ 0,00</span>
+                </div>
+                <div class="summary-item">
+                    <label>Total de Saídas</label>
+                    <span id="res-saidas" style="color: var(--orange);">R$ 0,00</span>
+                </div>
+                <div class="summary-item">
+                    <label>Sobra do Mês</label>
+                    <span id="res-sobra" style="color: var(--blue);">R$ 0,00</span>
+                </div>
+                <div class="summary-item">
+                    <label>% Investido</label>
+                    <span id="res-invest-pct" style="color: var(--purple);">0%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function calcular() {
+        let totalEntradas = 0;
+        document.querySelectorAll('.val-entrada').forEach(i => totalEntradas += Number(i.value) || 0);
+
+        let totalSaidas = 0;
+        document.querySelectorAll('.val-saida').forEach(i => totalSaidas += Number(i.value) || 0);
+
+        let totalInvest = 0;
+        document.querySelectorAll('.val-invest').forEach(i => totalInvest += Number(i.value) || 0);
+
+        const sobra = totalEntradas - (totalSaidas + totalInvest);
+        const pctInvest = totalEntradas > 0 ? ((totalInvest / totalEntradas) * 100).toFixed(1) : 0;
+
+        document.getElementById('total-entradas').innerText = 'R$ ' + totalEntradas.toFixed(2);
+        document.getElementById('res-entradas').innerText = 'R$ ' + totalEntradas.toFixed(2);
+        document.getElementById('res-saidas').innerText = 'R$ ' + (totalSaidas + totalInvest).toFixed(2);
+        document.getElementById('res-sobra').innerText = 'R$ ' + sobra.toFixed(2);
+        document.getElementById('res-invest-pct').innerText = pctInvest + '%';
+    }
+</script>
+
+</body>
+</html>
