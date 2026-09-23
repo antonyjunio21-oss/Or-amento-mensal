@@ -316,6 +316,66 @@
         document.getElementById('res-sobra').innerText = 'R$ ' + sobra.toFixed(2);
         document.getElementById('res-invest-pct').innerText = pctInvest + '%';
     }
+</script><script>
+  // Função para pegar a chave única baseada no mês selecionado
+  function getChaveMes() {
+    const selectMes = document.querySelector('select');
+    const mesSelecionado = selectMes ? selectMes.value : 'padrao';
+    return `orcamento_${mesSelecionado}`;
+  }
+
+  // 1. Salva os valores de todos os inputs no localStorage
+  function salvarDados() {
+    const inputs = document.querySelectorAll('input');
+    const dados = {};
+
+    inputs.forEach((input, index) => {
+      dados[index] = input.value;
+    });
+
+    const chave = getChaveMes();
+    localStorage.setItem(chave, JSON.stringify(dados));
+  }
+
+  // 2. Carrega os valores salvos para o mês atual
+  function carregarDados() {
+    const chave = getChaveMes();
+    const dadosSalvos = localStorage.getItem(chave);
+    const inputs = document.querySelectorAll('input');
+
+    if (dadosSalvos) {
+      const dados = JSON.parse(dadosSalvos);
+      inputs.forEach((input, index) => {
+        if (dados[index] !== undefined) {
+          input.value = dados[index];
+        }
+      });
+    } else {
+      // Limpa os campos se o mês ainda não tiver dados salvos
+      inputs.forEach(input => {
+        input.value = '0.00';
+      });
+    }
+
+    // Recalcula totais se a sua função de cálculo existir
+    if (typeof calcularTotais === 'function') {
+      calcularTotais();
+    }
+  }
+
+  // 3. Adiciona os eventos necessários ao carregar a página
+  document.addEventListener('DOMContentLoaded', () => {
+    carregarDados();
+
+    document.querySelectorAll('input').forEach(input => {
+      input.addEventListener('input', salvarDados);
+    });
+
+    const selectMes = document.querySelector('select');
+    if (selectMes) {
+      selectMes.addEventListener('change', carregarDados);
+    }
+  });
 </script>
 
 </body>
